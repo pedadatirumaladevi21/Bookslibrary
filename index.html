@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BookVerse</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+      color: #ff6f61;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .book-list {
+      display: grid;
+      gap: 1.5rem;
+    }
+    .book {
+      background: #1f1f1f;
+      padding: 1rem;
+      border-radius: 12px;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .book img {
+      height: 120px;
+      border-radius: 6px;
+    }
+    .book-info {
+      flex: 1;
+    }
+    .book-info h3 {
+      margin: 0;
+      color: #ffd166;
+    }
+    .book-info p {
+      margin: 0.5rem 0;
+    }
+    .book-info a {
+      color: #00b4d8;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>BooksLibrary </h1>
+    <input type="text" id="searchInput" placeholder="Search for books...">
+    <div class="book-list" id="bookList"></div>
+  </div>
+
+  <script>
+    const searchInput = document.getElementById('searchInput');
+    const bookList = document.getElementById('bookList');
+
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value;
+      if (query.length > 2) {
+        fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}`)
+          .then(res => res.json())
+          .then(data => {
+            bookList.innerHTML = '';
+            if (data.items) {
+              data.items.forEach(item => {
+                const volumeInfo = item.volumeInfo;
+                const book = document.createElement('div');
+                book.className = 'book';
+
+                book.innerHTML = `
+                  <img src="${volumeInfo.imageLinks?.thumbnail || 'https://via.placeholder.com/120'}" alt="Book Cover">
+                  <div class="book-info">
+                    <h3>${volumeInfo.title}</h3>
+                    <p>By ${volumeInfo.authors?.join(', ') || 'Unknown Author'}</p>
+                    <p>${volumeInfo.description?.substring(0, 100) || 'No description available'}...</p>
+                    <a href="${volumeInfo.previewLink}" target="_blank">Preview</a>
+                  </div>
+                `;
+
+                bookList.appendChild(book);
+              });
+            }
+          });
+      } else {
+        bookList.innerHTML = '';
+      }
+    });
+  </script>
+</body>
+</html>
